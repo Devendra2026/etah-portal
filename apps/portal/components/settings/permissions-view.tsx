@@ -71,7 +71,7 @@ export function PermissionsView() {
     <div>
       <PageHeader
         title="User Permissions"
-        description="Grant Etah department roles to Clerk users from admin.sdvedutech.in. The catalog below is read from the survey service."
+        description="Grant Etah department roles to officers who signed up on this portal. The catalog below is read from the survey service."
       />
       <DepartmentGrantPanel />
       <div className="mb-4 max-w-sm">
@@ -107,7 +107,9 @@ export function PermissionsView() {
       ) : (
         <div className="space-y-6">
           <section>
-            <h2 className="mb-2 text-sm font-semibold text-foreground">Roles</h2>
+            <h2 className="mb-2 text-sm font-semibold text-foreground">
+              Roles
+            </h2>
             {filteredRoles.length === 0 ? (
               <EmptyState title="No roles matched that search." />
             ) : (
@@ -118,7 +120,9 @@ export function PermissionsView() {
                       <TableHead>Role</TableHead>
                       <TableHead>Family</TableHead>
                       <TableHead className="text-right">Permissions</TableHead>
-                      <TableHead className="text-right">Assigned users</TableHead>
+                      <TableHead className="text-right">
+                        Assigned users
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -132,9 +136,7 @@ export function PermissionsView() {
                           key={role.id}
                           className="cursor-pointer"
                           tabIndex={0}
-                          onClick={() =>
-                            setOpenRoleId(open ? null : role.id)
-                          }
+                          onClick={() => setOpenRoleId(open ? null : role.id)}
                           onKeyDown={(event) => {
                             if (event.key === "Enter" || event.key === " ") {
                               event.preventDefault()

@@ -2,8 +2,8 @@
 
 import { EmptyState, ErrorState } from "@/components/shared/empty-state"
 import { TableSkeleton } from "@/components/shared/loading-state"
-import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { useCurrentUserProfile } from "@/hooks/use-current-user"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { useEtahScope } from "@/hooks/use-etah-scope"
 import { isApiError } from "@/lib/api/client"
 import { listRoles } from "@/lib/api/roles"
@@ -41,7 +41,8 @@ export function DepartmentGrantPanel() {
 
   const pending = useQuery({
     queryKey: ["etah", "users", "pending", search],
-    queryFn: () => listPendingClerkUsers({ search: search || undefined, limit: 25 }),
+    queryFn: () =>
+      listPendingClerkUsers({ search: search || undefined, limit: 25 }),
     enabled: Boolean(isLoaded && isSignedIn && canGrant),
   })
 
@@ -63,7 +64,8 @@ export function DepartmentGrantPanel() {
   const departmentRoles = useMemo(
     () =>
       (roles.data?.items ?? []).filter((role) => {
-        if (role.family !== "DEPARTMENT" || !GRANTABLE.has(role.name)) return false
+        if (role.family !== "DEPARTMENT" || !GRANTABLE.has(role.name))
+          return false
         if (role.name === "DEPT_ADMIN" && !canGrantDeptAdmin) return false
         return true
       }),
@@ -91,7 +93,7 @@ export function DepartmentGrantPanel() {
     return (
       <EmptyState
         title="You cannot grant department access."
-        description="Granting Etah roles requires role:assign (DEPT_ADMIN or ADMIN). Clerk accounts are created on admin.sdvedutech.in."
+        description="Granting Etah roles requires role:assign (DEPT_ADMIN or ADMIN). Officers sign up on this portal."
       />
     )
   }
@@ -103,9 +105,8 @@ export function DepartmentGrantPanel() {
           Grant Etah department access
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Officers sign up on admin.sdvedutech.in. Grant DEPT_ADMIN, DEPT_CLERK, or
-          DEPT_OPERATOR for Etah Municipal Council here. After grant, their next
-          sign-in opens this portal.
+          Officers sign up on this portal. Grant DEPT_ADMIN, DEPT_CLERK, or
+          DEPT_OPERATOR for Etah Municipal Council here.
         </p>
       </div>
       <div className="max-w-sm">
@@ -136,7 +137,7 @@ export function DepartmentGrantPanel() {
       ) : (pending.data?.items.length ?? 0) === 0 ? (
         <EmptyState
           title="No pending Clerk users."
-          description="New officers appear here after they sign up on admin.sdvedutech.in."
+          description="New officers appear here after they sign up on this portal."
         />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border bg-card">
@@ -155,7 +156,9 @@ export function DepartmentGrantPanel() {
                   roleByUser[user.id] ?? departmentRoles[0]?.id ?? ""
                 return (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.fullName}</TableCell>
+                    <TableCell className="font-medium">
+                      {user.fullName}
+                    </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
                       <select
@@ -182,9 +185,7 @@ export function DepartmentGrantPanel() {
                         size="sm"
                         className="cursor-pointer"
                         disabled={
-                          !selected ||
-                          !scope.data?.ulbId ||
-                          grant.isPending
+                          !selected || !scope.data?.ulbId || grant.isPending
                         }
                         onClick={() => {
                           if (!scope.data?.ulbId) return

@@ -24,7 +24,7 @@ Dokploy may default to Railpack. Switch **Build Pack** to **Nixpacks** so `nixpa
 Production Keys are only allowed for domain "sdvedutech.in"
 ```
 
-Do **not** use the admin `sdvedutech.in` `pk_live_` on this host. Use a **separate Clerk application** whose domain is `portal.nppetah.in` (or a development instance allowed on that host). See [`clerk-satellite.md`](./clerk-satellite.md).
+Do **not** use the admin `sdvedutech.in` `pk_live_` on this host. Use a **separate Clerk application** whose Frontend API is `clerk.nppetah.in`. See [`clerk-production.md`](./clerk-production.md).
 
 ### Build missing `NEXT_PUBLIC_*`
 
@@ -102,7 +102,7 @@ PORTAL_CLERK_SECRET_KEY=sk_…same secret as this portal…
 PORTAL_CLERK_AUTHORIZED_PARTIES=https://portal.nppetah.in
 ```
 
-Full setup: [`clerk-satellite.md`](./clerk-satellite.md).
+Full Clerk production + cookies: [`clerk-production.md`](./clerk-production.md).
 
 ## 5b. After login, APIs used by this portal
 

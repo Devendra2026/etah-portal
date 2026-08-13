@@ -1,12 +1,14 @@
 import { AppProviders } from "@/components/providers"
 import { ThemeProvider } from "@/components/theme-provider"
 import { clerkAppearance } from "@/lib/clerk-appearance"
+import { getAllowedRedirectOrigins } from "@/lib/clerk-env"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google"
 
+import "@clerk/ui/themes/shadcn.css"
 import "@workspace/ui/globals.css"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -41,12 +43,18 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <ClerkProvider
+          dynamic
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
           appearance={clerkAppearance}
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/dashboard"
           signInForceRedirectUrl="/dashboard"
           signUpForceRedirectUrl="/dashboard"
           afterSignOutUrl="/sign-in"
+          allowedRedirectOrigins={getAllowedRedirectOrigins()}
+          telemetry={false}
         >
           <ThemeProvider>
             <AppProviders>

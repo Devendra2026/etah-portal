@@ -4,33 +4,14 @@ import { SidebarCollapseButton as CollapseControl } from "@/components/layout/si
 import { useSidebar } from "@/components/layout/sidebar-context"
 import { useCurrentUserProfile } from "@/hooks/use-current-user"
 import { useEtahScope } from "@/hooks/use-etah-scope"
-import { SignOutButton, useUser } from "@clerk/nextjs"
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import { clerkAppearance } from "@/lib/clerk-appearance"
+import { UserButton, useUser } from "@clerk/nextjs"
 import { Button } from "@workspace/ui/components/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
 import { Input } from "@workspace/ui/components/input"
-import { Bell, MapPin, Menu, Moon, Search, Sun } from "lucide-react"
+import { Bell, MapPin, Menu, Moon, Search, Settings, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback, useState } from "react"
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("")
-}
 
 export function AppHeader() {
   const { toggleMobile } = useSidebar()
@@ -134,46 +115,25 @@ export function AppHeader() {
           )}
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className="flex cursor-pointer items-center gap-2 rounded-lg px-1.5 py-1 transition-colors duration-200 hover:bg-muted"
-            aria-label="User menu"
-          >
-            <Avatar className="size-8">
-              <AvatarFallback className="bg-brand-navy text-xs text-white">
-                {initials(displayName)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="hidden min-w-0 text-left sm:block">
-              <span className="block truncate text-sm font-medium">
-                {displayName}
-              </span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {roleName}
-              </span>
+        <div className="flex items-center gap-2 rounded-lg px-1.5 py-1">
+          <UserButton userProfileMode="modal" appearance={clerkAppearance}>
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label="Settings"
+                labelIcon={<Settings className="size-4" />}
+                href="/settings/users"
+              />
+            </UserButton.MenuItems>
+          </UserButton>
+          <span className="hidden min-w-0 text-left sm:block">
+            <span className="block truncate text-sm font-medium">
+              {displayName}
             </span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>
-                {displayName}
-                <span className="mt-0.5 block font-normal text-muted-foreground">
-                  {roleName}
-                </span>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              nativeButton={false}
-              render={<Link href="/settings/users" />}
-            >
-              Settings
-            </DropdownMenuItem>
-            <SignOutButton>
-              <DropdownMenuItem>Sign out</DropdownMenuItem>
-            </SignOutButton>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <span className="block truncate text-xs text-muted-foreground">
+              {roleName}
+            </span>
+          </span>
+        </div>
       </div>
     </header>
   )

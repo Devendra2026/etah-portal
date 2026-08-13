@@ -1,4 +1,5 @@
 import { getNestApiOrigin, productionApiBlockedFromLocal } from "@/lib/env"
+import { auth } from "@clerk/nextjs/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export const dynamic = "force-dynamic"
@@ -16,14 +17,30 @@ const HOP_BY_HOP = new Set([
   "content-length",
 ])
 
-async function proxyNest(request: NextRequest, path: string[]): Promise<Response> {
+async function proxyNest(
+  request: NextRequest,
+  path: string[]
+): Promise<Response> {
+  const { isAuthenticated } = await auth()
+  if (!isAuthenticated) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Unauthorized",
+        data: null,
+        errors: null,
+      },
+      { status: 401 }
+    )
+  }
+
   const origin = getNestApiOrigin()
   if (productionApiBlockedFromLocal(origin, request.nextUrl.hostname)) {
     return NextResponse.json(
       {
         success: false,
         message:
-          "Production survey API (backend.sdvedutech.in) cannot be used from localhost. Clerk production keys only work on sdvedutech.in. Run api-survey-apps locally on port 4000 and set NEST_API_ORIGIN=http://localhost:4000.",
+          "Production survey API (backend.sdvedutech.in) cannot be used from localhost. Run api-survey-apps locally on port 4000 and set NEST_API_ORIGIN=http://localhost:4000. Portal Clerk keys are for nppetah.in.",
         data: null,
         errors: null,
       },

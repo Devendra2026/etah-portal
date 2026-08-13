@@ -2,7 +2,7 @@
 
 Next.js app in `apps/portal`. Production host: **https://portal.nppetah.in**.
 
-**Dokploy:** Nixpacks application (not Compose). See [`docs/ops/dokploy-nixpacks-setup.md`](docs/ops/dokploy-nixpacks-setup.md). Env paste: [`deploy/env/dokploy.nixpacks.env.example`](deploy/env/dokploy.nixpacks.env.example).
+**Dokploy:** Nixpacks (not Compose). [`docs/ops/dokploy-nixpacks-setup.md`](docs/ops/dokploy-nixpacks-setup.md). **Clerk production:** [`docs/ops/clerk-production.md`](docs/ops/clerk-production.md). Env: [`deploy/env/dokploy.nixpacks.env.example`](deploy/env/dokploy.nixpacks.env.example).
 
 ## Local
 

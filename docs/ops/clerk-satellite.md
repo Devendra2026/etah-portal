@@ -5,11 +5,11 @@ It does **not** redirect to `admin.sdvedutech.in`.
 
 Survey/export data still comes from Nest at `https://backend.sdvedutech.in`, scoped to Etah ULB.
 
-| App | Host | Auth |
-| --- | --- | --- |
-| Etah portal | `portal.nppetah.in` | Own Clerk (`pk_` / `sk_` for nppetah.in) |
-| Admin UI | `admin.sdvedutech.in` | SDV Clerk (unchanged) |
-| Nest API | `backend.sdvedutech.in` | Accepts **both** secrets |
+| App         | Host                    | Auth                                     |
+| ----------- | ----------------------- | ---------------------------------------- |
+| Etah portal | `portal.nppetah.in`     | Own Clerk (`pk_` / `sk_` for nppetah.in) |
+| Admin UI    | `admin.sdvedutech.in`   | SDV Clerk (unchanged)                    |
+| Nest API    | `backend.sdvedutech.in` | Accepts **both** secrets                 |
 
 ## Officer flow
 
@@ -23,11 +23,9 @@ Survey/export data still comes from Nest at `https://backend.sdvedutech.in`, sco
 
 Remove every satellite variable (`NEXT_PUBLIC_CLERK_IS_SATELLITE`, `SATELLITE_DOMAIN`, `PRIMARY_SIGN_IN_URL`, …). Paste [`deploy/env/dokploy.nixpacks.env.example`](../../deploy/env/dokploy.nixpacks.env.example). Enable **Available at Buildtime** on all `NEXT_PUBLIC_*` keys.
 
-Clerk Dashboard for **this** application:
+Cookie / DNS / production instance: [`clerk-production.md`](./clerk-production.md).
 
-- Production domain: `portal.nppetah.in` (or a development instance allowed on that host)
-- Paths: `/sign-in`, `/sign-up`
-- Redirect: `https://portal.nppetah.in/dashboard`
+Do not use `pk_test_` on `portal.nppetah.in` — that is the live `dev-browser-missing` cookie failure.
 
 ## Nest / api-survey-apps (redeploy api)
 

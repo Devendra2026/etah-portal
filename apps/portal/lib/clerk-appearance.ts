@@ -1,4 +1,8 @@
-export const clerkAppearance = {
+import type { Appearance } from "@clerk/ui"
+import { shadcn } from "@clerk/ui/themes"
+
+export const clerkAppearance: Appearance = {
+  theme: shadcn,
   variables: {
     colorPrimary: "#002366",
     colorDanger: "#CC0000",
@@ -15,5 +19,7 @@ export const clerkAppearance = {
       "bg-[#002366] hover:bg-[#001a4d] text-white font-semibold",
     footerActionLink: "text-[#002366] hover:text-[#001a4d] font-medium",
     formFieldInput: "rounded-xl border-border bg-background",
+    avatarBox: "size-8",
+    userButtonPopoverCard: "rounded-xl border border-border shadow-md",
   },
 }

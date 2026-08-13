@@ -65,7 +65,7 @@ export function UsersListView() {
     <div>
       <PageHeader
         title="Users List"
-        description="Officers already assigned to Etah Municipal Council. Create Clerk accounts on admin.sdvedutech.in, then grant department access under User Permissions."
+        description="Officers already assigned to Etah Municipal Council. New accounts sign up on this portal; grant department access under User Permissions."
       />
       <div className="mb-4 max-w-sm">
         <label className="flex flex-col gap-1.5 text-xs font-medium text-muted-foreground">
@@ -129,7 +129,8 @@ export function UsersListView() {
           {meta && meta.totalPages > 1 ? (
             <div className="flex items-center justify-between border-t border-border px-4 py-3">
               <p className="text-xs text-muted-foreground">
-                Page {meta.page} of {meta.totalPages} · {formatNumber(meta.total)} users
+                Page {meta.page} of {meta.totalPages} ·{" "}
+                {formatNumber(meta.total)} users
               </p>
               <div className="flex gap-2">
                 <Button
