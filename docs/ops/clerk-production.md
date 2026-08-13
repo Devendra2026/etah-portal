@@ -81,12 +81,14 @@ openssl rand -base64 32
 
 ## 2. Portal Dokploy
 
-Delete satellite and test keys:
+Delete satellite, test keys, and force-redirect vars (they cause `ERR_TOO_MANY_REDIRECTS`):
 
 - `NEXT_PUBLIC_CLERK_IS_SATELLITE`
 - `NEXT_PUBLIC_CLERK_SATELLITE_DOMAIN`
 - `NEXT_PUBLIC_CLERK_PRIMARY_SIGN_IN_URL`
 - `NEXT_PUBLIC_CLERK_PRIMARY_SIGN_UP_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL`
 - `pk_test_` / `sk_test_`
 
 Paste [`deploy/env/dokploy.nixpacks.env.example`](../../deploy/env/dokploy.nixpacks.env.example).
@@ -108,6 +110,8 @@ CLERK_AUTHORIZED_PARTIES=https://admin.sdvedutech.in,https://portal.nppetah.in
 
 Redeploy **api**.
 
+If the browser shows **ERR_TOO_MANY_REDIRECTS**, delete site cookies for `portal.nppetah.in` and `clerk.nppetah.in`, remove the `*_FORCE_REDIRECT_URL` variables above, then **Rebuild**. Signed-in officers who cannot reach Nest see an error page with Sign out — they are not bounced back to `/sign-in`.
+
 ## 4. Smoke
 
 ```bash
@@ -128,4 +132,5 @@ Pass:
 | SDV `pk_live_`                                | Origin locked to `sdvedutech.in`            |
 | `pk_test_`                                    | Third-party cookies → `dev-browser-missing` |
 | Satellite                                     | Login leaves this host                      |
+| `*_FORCE_REDIRECT_URL=/dashboard`             | sign-in ↔ dashboard redirect loop           |
 | `NEST_API_ORIGIN=https://admin.sdvedutech.in` | Admin UI, not Nest                          |

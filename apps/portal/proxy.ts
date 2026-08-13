@@ -1,4 +1,4 @@
-import { getPortalOrigin } from "@/lib/clerk-env"
+import { getAllowedRedirectOrigins } from "@/lib/clerk-env"
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 
@@ -7,7 +7,6 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up(.*)",
   "/__clerk(.*)",
 ])
-const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"])
 const isNestApi = createRouteMatcher(["/nest-api(.*)"])
 
 export default clerkMiddleware(
@@ -22,10 +21,6 @@ export default clerkMiddleware(
       return NextResponse.redirect(new URL("/sign-in", req.url))
     }
 
-    if (isAuthenticated && isAuthRoute(req)) {
-      return NextResponse.redirect(new URL("/dashboard", req.url))
-    }
-
     if (isNestApi(req)) {
       return
     }
@@ -35,7 +30,7 @@ export default clerkMiddleware(
     }
   },
   {
-    authorizedParties: [getPortalOrigin()],
+    authorizedParties: getAllowedRedirectOrigins(),
     signInUrl: "/sign-in",
     signUpUrl: "/sign-up",
   }

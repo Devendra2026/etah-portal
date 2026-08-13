@@ -50,8 +50,6 @@ export default function RootLayout({
           signUpUrl="/sign-up"
           signInFallbackRedirectUrl="/dashboard"
           signUpFallbackRedirectUrl="/dashboard"
-          signInForceRedirectUrl="/dashboard"
-          signUpForceRedirectUrl="/dashboard"
           afterSignOutUrl="/sign-in"
           allowedRedirectOrigins={getAllowedRedirectOrigins()}
           telemetry={false}

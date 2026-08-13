@@ -65,6 +65,16 @@ export function assertClerkProductionConfig(): void {
       "Remove NEXT_PUBLIC_CLERK_PRIMARY_SIGN_IN_URL. Sign-in is /sign-in on this host."
     )
   }
+  if (process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL) {
+    errors.push(
+      "Remove NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL. It causes ERR_TOO_MANY_REDIRECTS (sign-in ↔ dashboard). Use NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard only."
+    )
+  }
+  if (process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL) {
+    errors.push(
+      "Remove NEXT_PUBLIC_CLERK_SIGN_UP_FORCE_REDIRECT_URL. It causes ERR_TOO_MANY_REDIRECTS (sign-up ↔ dashboard)."
+    )
+  }
   if (encryption.length < 16) {
     errors.push(
       "CLERK_ENCRYPTION_KEY is required in production (openssl rand -base64 32)."
