@@ -2,5 +2,15 @@ import { clerkAppearance } from "@/lib/clerk-appearance"
 import { SignUp } from "@clerk/nextjs"
 
 export default function SignUpPage() {
-  return <SignUp appearance={clerkAppearance} />
+  return (
+    <div className="flex min-h-screen items-center justify-center p-6">
+      <SignUp
+        appearance={clerkAppearance}
+        routing="path"
+        path="/sign-up"
+        signInUrl="/sign-in"
+        forceRedirectUrl="/dashboard"
+      />
+    </div>
+  )
 }

@@ -13,12 +13,12 @@ export default async function AppGroupLayout({
   const { getToken } = await auth.protect()
   const token = await getToken()
   if (!token) {
-    redirect("https://admin.sdvedutech.in/sign-in")
+    redirect("/sign-in")
   }
 
   const current = await fetchAuthenticatedProfile(token)
   if (current.status === 401) {
-    redirect("https://admin.sdvedutech.in/sign-in")
+    redirect("/sign-in")
   }
   if (!hasPortalAccess(current.profile?.permissions)) {
     return <AccessPending />

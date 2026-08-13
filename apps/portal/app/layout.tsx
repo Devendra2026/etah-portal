@@ -1,10 +1,6 @@
 import { AppProviders } from "@/components/providers"
 import { ThemeProvider } from "@/components/theme-provider"
 import { clerkAppearance } from "@/lib/clerk-appearance"
-import {
-  clerkSatelliteOptions,
-  isClerkSatellite,
-} from "@/lib/clerk-runtime"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
@@ -46,19 +42,11 @@ export default function RootLayout({
       <body className="min-h-full">
         <ClerkProvider
           appearance={clerkAppearance}
-          {...(isClerkSatellite()
-            ? clerkSatelliteOptions()
-            : {
-                signInUrl: "/sign-in",
-                signUpUrl: "/sign-up",
-              })}
+          signInUrl="/sign-in"
+          signUpUrl="/sign-up"
           signInForceRedirectUrl="/dashboard"
           signUpForceRedirectUrl="/dashboard"
-          afterSignOutUrl={
-            isClerkSatellite()
-              ? clerkSatelliteOptions().signInUrl
-              : "/sign-in"
-          }
+          afterSignOutUrl="/sign-in"
         >
           <ThemeProvider>
             <AppProviders>

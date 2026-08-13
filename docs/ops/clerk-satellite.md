@@ -1,51 +1,43 @@
-# Clerk: admin primary + Etah portal satellite
+# Clerk: portal has its own keys (not satellite)
 
-Same Clerk **production** instance as `admin.sdvedutech.in` / `backend.sdvedutech.in`.
+`portal.nppetah.in` signs in with **this portal’s Clerk application**.
+It does **not** redirect to `admin.sdvedutech.in`.
 
-| App | Host | Clerk role |
+Survey/export data still comes from Nest at `https://backend.sdvedutech.in`, scoped to Etah ULB.
+
+| App | Host | Auth |
 | --- | --- | --- |
-| api-survey-apps `apps/web` | `admin.sdvedutech.in` | **Primary** — sign-in, sign-up, user management |
-| etah-portal `apps/portal` | `portal.nppetah.in` | **Satellite** — session sync after primary login |
-| api-survey-apps `apps/api` | `backend.sdvedutech.in` | JWT verify (`azp` allowlist) |
+| Etah portal | `portal.nppetah.in` | Own Clerk (`pk_` / `sk_` for nppetah.in) |
+| Admin UI | `admin.sdvedutech.in` | SDV Clerk (unchanged) |
+| Nest API | `backend.sdvedutech.in` | Accepts **both** secrets |
 
 ## Officer flow
 
-1. New officer signs up / signs in on `https://admin.sdvedutech.in`.
-2. Nest upserts them as `PENDING_APPROVAL` (no permissions).
-3. An Etah `DEPT_ADMIN` or platform `ADMIN` opens `https://portal.nppetah.in/settings/permissions` and grants `DEPT_CLERK` / `DEPT_OPERATOR` / `DEPT_ADMIN` for Etah ULB.
-4. Next sign-in: Clerk satellite returns to the portal, or admin redirects Etah department roles to `https://portal.nppetah.in/dashboard`.
+1. Open `https://portal.nppetah.in/sign-in` (or `/sign-up`).
+2. Nest verifies the portal JWT via `PORTAL_CLERK_SECRET_KEY`.
+3. If the email already exists on the survey service, that officer’s Etah roles apply. Otherwise they are `PENDING_APPROVAL`.
+4. An Etah `DEPT_ADMIN` / `ADMIN` grants a department role under Settings → User Permissions.
+5. Dashboard, registry, and **ULB-wise exports** call `/nest-api/...` → `backend.sdvedutech.in` with `districtId` + `ulbId` for Etah Municipal Council.
 
-Platform roles (`ADMIN`, `SURVEYOR`, `QC_SUPERVISOR`, `FIELD_SUPERVISOR`) stay on admin.
+## Portal Dokploy (rebuild)
 
-## Portal Dokploy env
+Remove every satellite variable (`NEXT_PUBLIC_CLERK_IS_SATELLITE`, `SATELLITE_DOMAIN`, `PRIMARY_SIGN_IN_URL`, …). Paste [`deploy/env/dokploy.nixpacks.env.example`](../../deploy/env/dokploy.nixpacks.env.example). Enable **Available at Buildtime** on all `NEXT_PUBLIC_*` keys.
 
-Use live keys from the **admin** Clerk instance (`pk_live_` / `sk_live_`), plus:
+Clerk Dashboard for **this** application:
 
-```bash
-NEXT_PUBLIC_CLERK_IS_SATELLITE=true
-NEXT_PUBLIC_CLERK_SATELLITE_DOMAIN=portal.nppetah.in
-NEXT_PUBLIC_CLERK_PRIMARY_SIGN_IN_URL=https://admin.sdvedutech.in/sign-in
-NEXT_PUBLIC_CLERK_PRIMARY_SIGN_UP_URL=https://admin.sdvedutech.in/sign-up
-NEST_API_ORIGIN=https://backend.sdvedutech.in
-```
+- Production domain: `portal.nppetah.in` (or a development instance allowed on that host)
+- Paths: `/sign-in`, `/sign-up`
+- Redirect: `https://portal.nppetah.in/dashboard`
 
-Do not use `pk_test_` on `portal.nppetah.in`.
+## Nest / api-survey-apps (redeploy api)
 
-## Admin Dokploy (rebuild web)
+Same secret as the portal `CLERK_SECRET_KEY`:
 
 ```bash
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
-ETAH_PORTAL_URL=https://portal.nppetah.in
-CLERK_AUTHORIZED_PARTIES=https://admin.sdvedutech.in,https://portal.nppetah.in
+PORTAL_CLERK_SECRET_KEY=sk_…same as portal…
+PORTAL_CLERK_AUTHORIZED_PARTIES=https://portal.nppetah.in
 CORS_ORIGIN=https://admin.sdvedutech.in,https://portal.nppetah.in
+CLERK_AUTHORIZED_PARTIES=https://admin.sdvedutech.in,https://portal.nppetah.in
 ```
 
-Do **not** set `NEXT_PUBLIC_CLERK_SIGN_IN_FORCE_REDIRECT_URL` — it blocks satellite return to the portal.
-
-## Clerk Dashboard
-
-- Home URL: `https://admin.sdvedutech.in`
-- Satellite domain: `portal.nppetah.in`
-- Allowed redirect: `https://portal.nppetah.in/dashboard`
-- Same instance as Nest `CLERK_SECRET_KEY`
+Do not point `NEST_API_ORIGIN` at `admin.sdvedutech.in` — that host is the admin Next.js UI, not the API.
