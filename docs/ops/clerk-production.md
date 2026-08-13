@@ -110,6 +110,15 @@ CLERK_AUTHORIZED_PARTIES=https://admin.sdvedutech.in,https://portal.nppetah.in
 
 Redeploy **api**.
 
+Portal sign-in succeeding and then showing **Could not verify your account** means Nest does not accept this instance’s JWT. Confirm on **api-survey-apps** (not the portal):
+
+```bash
+curl -s https://backend.sdvedutech.in/users/me
+# Missing Bearer token → API is up
+```
+
+Then set `PORTAL_CLERK_SECRET_KEY` to the **same** `sk_live_` as `portal.nppetah.in` (the key whose publishable key decodes to `clerk.nppetah.in`), plus `PORTAL_CLERK_AUTHORIZED_PARTIES=https://portal.nppetah.in`, and redeploy **api**.
+
 If the browser shows **ERR_TOO_MANY_REDIRECTS**, delete site cookies for `portal.nppetah.in` and `clerk.nppetah.in`, remove the `*_FORCE_REDIRECT_URL` variables above, then **Rebuild**. Signed-in officers who cannot reach Nest see an error page with Sign out — they are not bounced back to `/sign-in`.
 
 ## 4. Smoke

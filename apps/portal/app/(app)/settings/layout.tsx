@@ -12,12 +12,15 @@ export default async function SettingsLayout({
   const { getToken } = await auth.protect()
   const token = await getToken()
   if (!token) {
-    return <AccessUnverified />
+    return <AccessUnverified reason="missing-token" />
   }
 
   const current = await fetchAuthenticatedProfile(token)
-  if (current.status === 401 || current.status === 502) {
-    return <AccessUnverified />
+  if (current.status === 502) {
+    return <AccessUnverified reason="unreachable" detail={current.message} />
+  }
+  if (current.status === 401 || current.status === 403) {
+    return <AccessUnverified reason="rejected" detail={current.message} />
   }
   if (!canGrantDepartmentAccess(current.profile?.permissions)) {
     return <AccessForbidden />
