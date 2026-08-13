@@ -60,7 +60,7 @@ async function proxyNest(request: NextRequest, path: string[]): Promise<Response
     return NextResponse.json(
       {
         success: false,
-        message: `Unable to reach the local survey API at ${origin}. Start api-survey-apps (Nest) on port 4000.`,
+        message: `Unable to reach the survey API at ${origin}.`,
         data: null,
         errors: null,
       },

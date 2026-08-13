@@ -99,10 +99,33 @@ CORS_ORIGIN=https://admin.sdvedutech.in,https://portal.nppetah.in
 CLERK_AUTHORIZED_PARTIES=https://admin.sdvedutech.in,https://portal.nppetah.in
 ```
 
-Clerk Dashboard (same instance as admin):
+Clerk Dashboard (same **production** instance as `admin.sdvedutech.in`):
 
 - Satellite domain: `portal.nppetah.in`
-- Redirect URL: `https://portal.nppetah.in/dashboard`
+- Allowed redirect: `https://portal.nppetah.in/dashboard`
+
+Full handshake: [`clerk-satellite.md`](./clerk-satellite.md).
+
+Do not paste development (`pk_test_`) keys into this app. Live smoke (2026-08-13) showed `X-Clerk-Auth-Reason: dev-browser-missing` because test keys were deployed. Satellite + test instance cannot sync with `admin.sdvedutech.in`, and Nest rejects those JWTs.
+
+## 5b. After login, APIs used by this portal
+
+Browser → `https://portal.nppetah.in/nest-api/...` → server proxy → `https://backend.sdvedutech.in/...` with `Authorization: Bearer <Clerk JWT>`.
+
+| Screen | Nest route | Live without token |
+| ------ | ---------- | ------------------ |
+| Health | `GET /health` | 200 |
+| Etah scope | `GET /districts`, `/ulbs`, `/wards` | 401 |
+| Dashboard / survey overview | `GET /command-center/kpis`, `/dashboard/analytics` | 401 |
+| Wards | `GET /command-center/wards` | 401 |
+| Registry / detail | `GET /survey-registry`, `/surveys`, `/surveys/:id` | 401 |
+| Demand notice | `GET /demand-notices`, `/demand-notices/:id`, `POST /demand-notices/print-token` | 401 |
+| Reports | `GET /reports/surveys`, `/reports/export`, `/reports/jobs/:id` | 401 |
+| Settings | `GET /users`, `/users/me`, `/roles`, `/permissions` | 401 |
+
+401 without a Bearer token means the route exists. 404 would mean a missing API. Payments / cash-desk collection totals are **not** on Nest; the portal does not invent them.
+
+`/nest-api` is excluded from Clerk middleware so the proxy returns JSON (Nest 401/200), not an HTML sign-in redirect.
 
 ## 6. What Nixpacks runs
 

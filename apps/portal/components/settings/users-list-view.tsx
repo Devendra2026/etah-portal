@@ -65,7 +65,7 @@ export function UsersListView() {
     <div>
       <PageHeader
         title="Users List"
-        description="Officers assigned to Etah Municipal Council on the survey service."
+        description="Officers already assigned to Etah Municipal Council. Create Clerk accounts on admin.sdvedutech.in, then grant department access under User Permissions."
       />
       <div className="mb-4 max-w-sm">
         <label className="flex flex-col gap-1.5 text-xs font-medium text-muted-foreground">

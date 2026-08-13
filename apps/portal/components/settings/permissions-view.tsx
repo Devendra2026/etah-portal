@@ -1,6 +1,7 @@
 "use client"
 
 import { PageHeader } from "@/components/layout/page-header"
+import { DepartmentGrantPanel } from "@/components/settings/department-grant-panel"
 import { EmptyState, ErrorState } from "@/components/shared/empty-state"
 import { TableSkeleton } from "@/components/shared/loading-state"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
@@ -70,8 +71,9 @@ export function PermissionsView() {
     <div>
       <PageHeader
         title="User Permissions"
-        description="Roles and permission catalog from the survey service. Assignments are managed there."
+        description="Grant Etah department roles to Clerk users from admin.sdvedutech.in. The catalog below is read from the survey service."
       />
+      <DepartmentGrantPanel />
       <div className="mb-4 max-w-sm">
         <label className="flex flex-col gap-1.5 text-xs font-medium text-muted-foreground">
           Search roles or permissions
