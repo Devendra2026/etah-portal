@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "build:portal": "turbo run build --filter=portal",
+    "start": "pnpm --filter portal start",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",

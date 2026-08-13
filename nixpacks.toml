@@ -1,0 +1,29 @@
+# Dokploy → Application → Build pack: Nixpacks (not Compose / Dockerfile / Railpack).
+# Context = repository root. Builds apps/portal and starts it on PORT (default 3000).
+
+providers = ["node"]
+
+[variables]
+NODE_ENV = "production"
+CI = "true"
+HOSTNAME = "0.0.0.0"
+PORT = "3000"
+NEXT_TELEMETRY_DISABLED = "1"
+NIXPACKS_NODE_VERSION = "20"
+NIXPACKS_PNPM_VERSION = "10.33.4"
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@10.33.4 --activate",
+  "pnpm install --frozen-lockfile",
+]
+
+[phases.build]
+cmds = ["pnpm exec turbo run build --filter=portal"]
+
+[start]
+cmd = "pnpm --filter portal start"
