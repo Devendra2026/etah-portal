@@ -59,7 +59,7 @@ export function AppHeader() {
   )
 
   return (
-    <header className="z-10 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-3 sm:px-5">
+    <header className="z-10 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-3 sm:px-5 print:hidden">
       <Button
         type="button"
         variant="ghost"
@@ -75,7 +75,7 @@ export function AppHeader() {
 
       <form
         onSubmit={handleSearch}
-        className="relative hidden min-w-0 flex-1 sm:block sm:max-w-lg"
+        className="relative hidden min-w-0 flex-1 md:block md:max-w-md lg:max-w-lg"
         role="search"
       >
         <Search
@@ -165,7 +165,7 @@ export function AppHeader() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               nativeButton={false}
-              render={<Link href="/settings" />}
+              render={<Link href="/settings/users" />}
             >
               Settings
             </DropdownMenuItem>

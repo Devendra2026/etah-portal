@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header"
 import { EmptyState, ErrorState } from "@/components/shared/empty-state"
 import { TableSkeleton } from "@/components/shared/loading-state"
 import { StatusBadge } from "@/components/shared/status-badge"
+import { SurveyStatusBadge } from "@/components/shared/survey-status-badge"
 import {
   useDashboardFilters,
   useEtahDashboard,
@@ -25,10 +26,12 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
-import { useParams } from "next/navigation"
+import Link from "next/link"
+import { useParams, useRouter } from "next/navigation"
 
 export function WardDetailView() {
   const params = useParams<{ wardId: string }>()
+  const router = useRouter()
   const wardId = params.wardId
   const { filters } = useDashboardFilters()
   const dashboard = useEtahDashboard({ ...filters, wardId })
@@ -116,28 +119,64 @@ export function WardDetailView() {
               Property list
             </h2>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Property ID</TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Locality</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(properties.data?.items ?? []).map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">
-                    {item.propertyId}
-                  </TableCell>
-                  <TableCell>{item.respondentName ?? "—"}</TableCell>
-                  <TableCell>{item.surveyStatus}</TableCell>
-                  <TableCell>{item.locality ?? "—"}</TableCell>
+          {(properties.data?.items.length ?? 0) === 0 ? (
+            <EmptyState
+              title="No survey data available."
+              description="No properties were returned for this ward."
+              className="m-4"
+            />
+          ) : (
+            <Table>
+              <caption className="sr-only">
+                Properties in {ward.wardName}
+              </caption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Property ID</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Locality</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {(properties.data?.items ?? []).map((item) => {
+                  const href = `/survey/properties/${item.id}`
+                  return (
+                    <TableRow
+                      key={item.id}
+                      className="cursor-pointer"
+                      tabIndex={0}
+                      onClick={() => router.push(href)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault()
+                          router.push(href)
+                        }
+                      }}
+                    >
+                      <TableCell className="font-medium">
+                        <Link
+                          href={href}
+                          className="text-brand-navy underline-offset-2 hover:underline"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {item.propertyId}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{item.respondentName ?? "—"}</TableCell>
+                      <TableCell>
+                        <SurveyStatusBadge
+                          surveyStatus={item.surveyStatus}
+                          qcStatus={item.qcStatus}
+                        />
+                      </TableCell>
+                      <TableCell>{item.locality ?? "—"}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          )}
         </section>
       )}
     </div>

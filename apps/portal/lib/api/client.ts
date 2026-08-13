@@ -117,3 +117,67 @@ export async function apiGetPaginated<T>(
 ): Promise<PaginatedResult<T>> {
   return apiGet<PaginatedResult<T>>(path, params)
 }
+
+export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
+  return request<T>(path, {
+    method: "POST",
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError
+}
+
+function filenameFromDisposition(
+  header: string | null,
+  fallback: string
+): string {
+  if (!header) return fallback
+  const utf = /filename\*=UTF-8''([^;]+)/i.exec(header)
+  if (utf?.[1]) return decodeURIComponent(utf[1])
+  const simple = /filename="?([^";]+)"?/i.exec(header)
+  if (simple?.[1]) return simple[1]
+  return fallback
+}
+
+export async function apiDownload(
+  path: string,
+  params?: Record<string, string | number | undefined> | object
+): Promise<{ blob: Blob; filename: string }> {
+  const headers = new Headers()
+  const token = tokenGetter ? await tokenGetter() : null
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`)
+  }
+
+  const url = `${getApiBaseUrl()}${path}${toQuery(params)}`
+  let response: Response
+  try {
+    response = await fetch(url, { headers, cache: "no-store" })
+  } catch {
+    throw new ApiError(
+      `Unable to reach the survey service at ${getApiBaseUrl()}.`,
+      0,
+      path
+    )
+  }
+
+  if (!response.ok) {
+    let message = `Download failed (${response.status})`
+    try {
+      const body = (await response.json()) as ApiResponse<unknown>
+      if (body?.message) message = body.message
+    } catch {
+      // Binary error bodies are ignored; status message is enough.
+    }
+    throw new ApiError(message, response.status, path)
+  }
+
+  const blob = await response.blob()
+  const filename = filenameFromDisposition(
+    response.headers.get("Content-Disposition"),
+    "download.bin"
+  )
+  return { blob, filename }
+}

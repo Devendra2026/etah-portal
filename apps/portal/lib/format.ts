@@ -54,3 +54,37 @@ export function percentOf(part: number, total: number): number {
   if (total <= 0) return 0
   return (part / total) * 100
 }
+
+export function displayValue(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) return "—"
+  const text = String(value).trim()
+  if (!text || text === "—") return "—"
+  return text
+}
+
+export function formatDate(value: string | number | Date | null | undefined): string {
+  if (value === null || value === undefined || value === "") return "—"
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return displayValue(String(value))
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date)
+}
+
+export function formatDateTime(
+  value: string | number | Date | null | undefined
+): string {
+  if (value === null || value === undefined || value === "") return "—"
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return displayValue(String(value))
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date)
+}

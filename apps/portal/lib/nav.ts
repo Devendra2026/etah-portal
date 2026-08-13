@@ -27,34 +27,38 @@ export const NAV_ITEMS: NavItem[] = [
     icon: ClipboardCheck,
     children: [
       { href: "/survey/overview", label: "Survey Overview" },
-      { href: "/survey/wards", label: "Ward Survey" },
       { href: "/survey/properties", label: "Survey Registry" },
-      { href: "/survey/status", label: "Survey Status" },
     ],
   },
   {
     href: "/report",
-    label: "Report",
+    label: "Reports",
     icon: FileBarChart,
     children: [
+      { href: "/report/ward-collection", label: "Ward-wise Collection" },
+      { href: "/report/demand-notice", label: "Demand Notice" },
+      { href: "/report/survey-excel", label: "Survey Excel" },
       { href: "/report/survey", label: "Survey Report" },
-      { href: "/report/ward", label: "Ward Report" },
-      { href: "/report/tax", label: "Tax Report" },
-      { href: "/report/tax-collection", label: "Collection Report" },
     ],
   },
   {
-    href: "/tax-collection",
-    label: "Tax Collection",
+    href: "/payments",
+    label: "Payments",
     icon: IndianRupee,
     children: [
-      { href: "/tax-collection/property-tax", label: "Property Tax" },
-      { href: "/tax-collection/water-tax", label: "Water Tax" },
-      { href: "/tax-collection/drainage-tax", label: "Drainage Tax" },
-      { href: "/tax-collection", label: "Collection Overview" },
+      { href: "/payments/cash-desk", label: "Cash Desk" },
+      { href: "/payments/transactions", label: "Transactions" },
     ],
   },
-  { href: "/settings", label: "Settings", icon: Settings },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: Settings,
+    children: [
+      { href: "/settings/permissions", label: "User Permissions" },
+      { href: "/settings/users", label: "Users List" },
+    ],
+  },
 ]
 
 export function isNavActive(
@@ -65,8 +69,11 @@ export function isNavActive(
   if (exact || href === "/dashboard") {
     return pathname === href
   }
-  if (href === "/tax-collection") {
-    return pathname === href || pathname.startsWith("/tax-collection/")
+  if (href === "/payments") {
+    return pathname === href || pathname.startsWith("/payments/")
+  }
+  if (href === "/settings") {
+    return pathname === href || pathname.startsWith("/settings/")
   }
   return pathname === href || pathname.startsWith(`${href}/`)
 }

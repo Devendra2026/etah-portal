@@ -1,7 +1,11 @@
 "use client"
 
 import { useSidebar } from "@/components/layout/sidebar-context"
+import { useCurrentUserProfile } from "@/hooks/use-current-user"
+import { MUNICIPALITY_NAME } from "@/lib/branding"
 import { isNavActive, NAV_ITEMS } from "@/lib/nav"
+import { useUser } from "@clerk/nextjs"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Button } from "@workspace/ui/components/button"
 import {
   Sheet,
@@ -11,33 +15,45 @@ import {
   SheetTitle,
 } from "@workspace/ui/components/sheet"
 import { cn } from "@workspace/ui/lib/utils"
-import { ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+
+function initials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("")
+}
 
 function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
-    <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-3">
+    <div className="flex h-[4.5rem] shrink-0 items-center border-b border-sidebar-border px-3">
       <Link
         href="/dashboard"
-        className="flex min-w-0 cursor-pointer items-center gap-2 rounded-lg px-1 py-1 transition-opacity duration-200 hover:opacity-90"
-        aria-label="Etah Portal home"
+        className="flex min-w-0 cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 transition-opacity duration-200 hover:opacity-90"
+        aria-label={`${MUNICIPALITY_NAME} home`}
       >
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-brand-navy text-[11px] font-bold text-white">
-          SDV
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element -- municipal seal is a local SVG asset */}
+        <img
+          src="/municipal-emblem.svg"
+          alt=""
+          width={44}
+          height={44}
+          className="size-11 shrink-0 rounded-full"
+        />
         <span
           className={cn(
             "min-w-0 transition-all duration-200",
             collapsed ? "sr-only" : "block"
           )}
         >
-          <span className="block truncate text-[11px] font-medium text-muted-foreground">
-            SDV EduTech
+          <span className="block truncate text-sm leading-tight font-semibold text-sidebar-foreground">
+            {MUNICIPALITY_NAME}
           </span>
-          <span className="block truncate text-sm font-semibold text-sidebar-foreground">
-            Etah Portal
+          <span className="block truncate text-[11px] font-medium text-muted-foreground">
+            Municipal Council
           </span>
         </span>
       </Link>
@@ -53,12 +69,6 @@ function Nav({
   onNavigate?: () => void
 }) {
   const pathname = usePathname()
-  const [open, setOpen] = useState<string>(() => {
-    const match = NAV_ITEMS.find(
-      (item) => item.children && pathname.startsWith(item.href)
-    )
-    return match?.href ?? ""
-  })
 
   return (
     <nav
@@ -68,28 +78,24 @@ function Nav({
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon
         const active = isNavActive(pathname, item.href, !item.children)
-        const expanded = open === item.href
         const link = (
           <Link
             href={item.children?.[0]?.href ?? item.href}
             title={collapsed ? item.label : undefined}
-            onClick={() => {
-              if (item.children) setOpen(expanded ? "" : item.href)
-              onNavigate?.()
-            }}
+            onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
               "group relative flex cursor-pointer items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors duration-200",
               collapsed ? "justify-center px-2" : "px-3",
               active
-                ? "bg-brand-red/10 text-sidebar-foreground"
+                ? "bg-brand-navy/10 text-brand-navy"
                 : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
             )}
           >
             {active ? (
               <span
                 className={cn(
-                  "absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-brand-red",
+                  "absolute top-1/2 left-0 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-brand-navy",
                   collapsed && "opacity-0"
                 )}
                 aria-hidden
@@ -99,7 +105,7 @@ function Nav({
               className={cn(
                 "size-4 shrink-0",
                 active
-                  ? "text-brand-red"
+                  ? "text-brand-navy"
                   : "text-sidebar-foreground/55 group-hover:text-sidebar-foreground"
               )}
               aria-hidden
@@ -107,25 +113,18 @@ function Nav({
             <span className={cn("truncate", collapsed && "sr-only")}>
               {item.label}
             </span>
-            {item.children && !collapsed ? (
-              <ChevronDown
-                className={cn(
-                  "ml-auto size-3.5 transition-transform duration-200",
-                  expanded && "rotate-180"
-                )}
-                aria-hidden
-              />
-            ) : null}
           </Link>
         )
 
         return (
           <div key={item.href}>
             {link}
-            {item.children && expanded && !collapsed ? (
+            {item.children && !collapsed ? (
               <ul className="mt-0.5 mb-2 space-y-0.5">
                 {item.children.map((child) => {
-                  const childActive = pathname === child.href
+                  const childActive =
+                    pathname === child.href ||
+                    pathname.startsWith(`${child.href}/`)
                   return (
                     <li key={child.href}>
                       <Link
@@ -135,7 +134,7 @@ function Nav({
                         className={cn(
                           "flex cursor-pointer rounded-lg py-1.5 pr-3 pl-9 text-[13px] transition-colors duration-200",
                           childActive
-                            ? "bg-brand-red/10 font-medium text-sidebar-foreground"
+                            ? "bg-brand-navy/10 font-medium text-brand-navy"
                             : "text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                         )}
                       >
@@ -160,29 +159,68 @@ export function AppSidebar() {
     <>
       <aside
         className={cn(
-          "relative hidden h-full min-h-0 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar lg:flex",
-          collapsed ? "w-16" : "w-60"
+          "relative hidden h-full min-h-0 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar lg:flex print:hidden",
+          collapsed ? "w-16" : "w-64"
         )}
         aria-label="Sidebar"
       >
         <Brand collapsed={collapsed} />
         <Nav collapsed={collapsed} />
+        <SidebarUser collapsed={collapsed} />
       </aside>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent
           side="left"
-          className="w-64 border-sidebar-border bg-sidebar p-0"
+          className="flex h-full w-64 flex-col border-sidebar-border bg-sidebar p-0"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
-            <SheetDescription>Etah Portal main navigation</SheetDescription>
+            <SheetDescription>
+              Nagar Palika Parishad, Etah main navigation
+            </SheetDescription>
           </SheetHeader>
           <Brand />
           <Nav onNavigate={() => setMobileOpen(false)} />
+          <SidebarUser />
         </SheetContent>
       </Sheet>
     </>
+  )
+}
+
+function SidebarUser({ collapsed }: { collapsed?: boolean }) {
+  const { user } = useUser()
+  const profile = useCurrentUserProfile()
+  const displayName = profile.data?.fullName || user?.fullName || "Officer"
+  const roleName =
+    profile.data?.tenantRoles?.find((role) => role.isActive)?.role?.name ??
+    profile.data?.tenantRoles?.find((role) => role.isActive)?.roleName ??
+    "Viewer"
+
+  return (
+    <div className="mt-auto border-t border-sidebar-border p-3">
+      <div
+        className={cn(
+          "flex items-center gap-2.5",
+          collapsed && "justify-center"
+        )}
+      >
+        <Avatar className="size-8">
+          <AvatarFallback className="bg-brand-navy text-[11px] text-white">
+            {initials(displayName)}
+          </AvatarFallback>
+        </Avatar>
+        <div className={cn("min-w-0", collapsed && "sr-only")}>
+          <p className="truncate text-sm font-medium text-sidebar-foreground">
+            {displayName}
+          </p>
+          <p className="truncate text-[11px] text-muted-foreground">
+            {roleName}
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }
 

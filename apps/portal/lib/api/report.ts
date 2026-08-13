@@ -1,14 +1,52 @@
-import type { ReportKind, ReportUnavailable } from "@/types/report"
-import type { CommandCenterFilters } from "@/types/survey"
+import { apiDownload, apiGet, apiGetPaginated } from "@/lib/api/client"
+import type {
+  EnqueueExportInput,
+  EnqueueExportResult,
+  ExportJob,
+  SurveyReportRow,
+} from "@/types/export-job"
 
-export async function getReports(
-  kind: ReportKind,
-  filters: CommandCenterFilters
-): Promise<ReportUnavailable> {
-  const scope = filters.ulbId ? "the selected Etah ULB" : "Etah"
-  return {
-    available: false,
-    kind,
-    message: `Server-side reporting for ${scope} is not wired in this slice. Use the dashboard and survey registry until report endpoints are connected.`,
-  }
+export async function getSurveyReport(params: {
+  ulbId?: string
+  search?: string
+  surveyStatus?: string
+  page?: number
+  limit?: number
+}) {
+  return apiGetPaginated<SurveyReportRow>("/reports/surveys", params)
+}
+
+export async function enqueueExport(
+  input: EnqueueExportInput
+): Promise<EnqueueExportResult> {
+  return apiGet<EnqueueExportResult>("/reports/export", {
+    format: input.format,
+    reportType: input.reportType,
+    districtId: input.districtId,
+    ulbId: input.ulbId,
+    wardId: input.wardId,
+    search: input.search,
+    surveyStatus: input.surveyStatus,
+    qcStatus: input.qcStatus,
+    enableAutoFilter: input.enableAutoFilter ? "true" : undefined,
+  })
+}
+
+export async function getExportJob(jobId: string): Promise<ExportJob> {
+  return apiGet<ExportJob>(`/reports/jobs/${encodeURIComponent(jobId)}`)
+}
+
+export async function downloadExportJob(
+  jobId: string
+): Promise<{ blob: Blob; filename: string }> {
+  return apiDownload(`/reports/jobs/${encodeURIComponent(jobId)}/file`)
+}
+
+export function triggerBrowserDownload(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
 }

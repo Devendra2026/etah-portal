@@ -54,7 +54,7 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Etah Portal Dashboard"
+        title="Nagar Palika Parishad, Etah"
         description="Survey, property and tax administration overview"
         actions={
           <Button
